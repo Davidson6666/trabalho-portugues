@@ -46,8 +46,19 @@
     ]
   },
   {
-    "id": "coletivo",
+    "id": "texto-5",
     "order": 5,
+    "title": "Texto do integrante 5 (TODO: título)",
+    "genre": "Crônica (TODO: gênero)",
+    "author": "membro-5",
+    "paragraphs": [
+      "TODO: cole aqui o primeiro parágrafo do texto.",
+      "TODO: segundo parágrafo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
+    ]
+  },
+  {
+    "id": "coletivo",
+    "order": 6,
     "title": "Texto coletivo (TODO: título)",
     "genre": "Texto coletivo",
     "author": "grupo",

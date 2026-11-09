@@ -26,5 +26,12 @@
     "role": "Função no grupo (TODO)",
     "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
     "photo": "/images/placeholder-member.svg"
+  },
+  {
+    "id": "membro-5",
+    "name": "Integrante 5 (TODO)",
+    "role": "Função no grupo (TODO)",
+    "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
+    "photo": "/images/placeholder-member.svg"
   }
 ]

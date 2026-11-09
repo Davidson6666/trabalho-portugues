@@ -30,17 +30,108 @@ interface Props {
 const MIN_MS = 6800;
 const MIN_MS_REDUCED = 2500;
 
-/** Posições finais das fotos: um anel em volta do centro (deixa espaço para o título). */
-function ringPositions(n: number, w: number, h: number) {
-  const portrait = h > w;
-  // Em tela vertical (celular) as fotos vão mais para cima/baixo, longe do título
-  const rx = portrait ? w * 0.28 : Math.min(w * 0.36, 540);
-  const ry = portrait ? h * 0.385 : Math.min(h * 0.31, 300);
-  // Ângulos igualmente espaçados, girados para evitar a faixa do título (com 4 fotos: os 4 cantos)
-  return Array.from({ length: n }, (_, i) => {
-    const ang = -Math.PI / 2 - Math.PI / Math.max(1, n) + (i * 2 * Math.PI) / Math.max(1, n);
-    return { x: Math.cos(ang) * rx, y: Math.sin(ang) * ry, r: (Math.random() - 0.5) * 16 };
+interface Box {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+/**
+ * Layout final das fotos, simétrico e para qualquer número de integrantes.
+ *
+ * Mede, na tela, as caixas reais do autor, dos arabescos, do título, do
+ * subtítulo e do botão "Pular" (`obstacles`) e coloca as fotos no espaço
+ * livre, o mais perto possível do centro e espelhadas:
+ *   - grupos de 4 (os quatro cantos, espelhados em x e y);
+ *   - o resto: um par espelhado, ou uma foto centralizada em cima/embaixo.
+ * Se não couber, diminui as fotos (mínimo 45 %). Preferimos a 5ª foto
+ * centralizada (simétrico), mesmo que as fotos fiquem até 42 % menores.
+ */
+function layoutCards(n: number, w: number, h: number, obstacles: Box[]) {
+  const jitter = () => (Math.random() - 0.5) * 16;
+  const baseW = Math.min(172, Math.max(84, w * 0.15));
+  const baseFont = Math.max(10, Math.min(15.2, w * 0.013));
+  const bar = h * 0.085; // faixas de cinema
+  const gap = 12;
+  const STEP = 8;
+  const cx = w / 2;
+  const cy = h / 2;
+
+  type Pt = [number, number]; // coordenadas relativas ao centro da tela
+
+  const attempt = (s: number, symmetricOnly: boolean, avoid: boolean): { cardW: number; font: number; positions: { x: number; y: number; r: number }[] } | null => {
+    const cw = baseW * s;
+    const hw = (cw / 2) * 1.1; // meia largura (com folga para a inclinação)
+    const hh = ((cw * 1.45) / 2) * 1.07; // meia altura (foto 3:4 + moldura e legenda)
+    const inside = (x: number, y: number) =>
+      cx + x - hw >= 14 && cx + x + hw <= w - 14 && cy + y - hh >= bar + 14 && cy + y + hh <= h - bar - 14;
+    const clearOfObstacles = (x: number, y: number) =>
+      !avoid ||
+      obstacles.every((o) => cx + x + hw < o.left - gap || cx + x - hw > o.right + gap || cy + y + hh < o.top - gap || cy + y - hh > o.bottom + gap);
+    const placed: Pt[] = [];
+    const clash = (x: number, y: number) => placed.some((p) => Math.abs(x - p[0]) < hw * 2 + gap && Math.abs(y - p[1]) < hh * 2 + gap);
+    const ok = (pts: Pt[]) => pts.every(([x, y], i) => inside(x, y) && clearOfObstacles(x, y) && !clash(x, y) && pts.every((q, j) => j <= i || Math.abs(x - q[0]) >= hw * 2 + gap || Math.abs(y - q[1]) >= hh * 2 + gap));
+
+    // Posições candidatas, das mais próximas do centro para as mais distantes
+    const grid: Pt[] = [];
+    for (let dy = 0; dy <= cy; dy += STEP) for (let dx = 0; dx <= cx; dx += STEP) grid.push([dx, dy]);
+    grid.sort((a, b) => Math.hypot(a[0] / w, a[1] / h) - Math.hypot(b[0] / w, b[1] / h));
+
+    const find = (mk: (dx: number, dy: number) => Pt[] | null): Pt[] | null => {
+      for (const [dx, dy] of grid) {
+        const pts = mk(dx, dy);
+        if (pts && ok(pts)) return pts;
+      }
+      return null;
+    };
+
+    let left = n;
+    if (left % 2 === 1) {
+      // foto ímpar primeiro: centralizada, em cima (preferido) ou embaixo; depois as outras se acomodam ao redor
+      let single = find((dx, dy) => (dx === 0 ? [[0, -dy]] : null));
+      if (!single) single = find((dx, dy) => (dx === 0 ? [[0, dy]] : null));
+      if (!single && !symmetricOnly) single = find((dx, dy) => [[-dx, dy]]); // lateral (assimétrico)
+      if (!single) return null;
+      placed.push(...single);
+      left -= 1;
+    }
+    while (left >= 4) {
+      // quatro cantos espelhados (ordem de queda: cima-esq, cima-dir, baixo-dir, baixo-esq)
+      const q = find((dx, dy) => (dx > 0 && dy > 0 ? [[-dx, -dy], [dx, -dy], [dx, dy], [-dx, dy]] : null));
+      if (!q) return null;
+      placed.push(...q);
+      left -= 4;
+    }
+    if (left === 2) {
+      const pair = find((dx, dy) => (dx > 0 ? [[-dx, dy === 0 ? 0 : -dy], [dx, dy === 0 ? 0 : -dy]] : null)) ?? find((dx, dy) => (dx > 0 ? [[-dx, dy], [dx, dy]] : null));
+      if (!pair) return null;
+      placed.push(...pair);
+    }
+    // Ordem de queda: alterna entre os lados
+    return { cardW: cw, font: baseFont * s, positions: placed.slice(0, n).map(([x, y]) => ({ x, y, r: jitter() })) };
+  };
+
+  // 1) simétrico, fotos até 25 % menores; 2) qualquer posição livre; 3) sem desviar do título
+  for (let s = 1; s >= 0.58; s -= 0.04) {
+    const r = attempt(s, true, true);
+    if (r) return r;
+  }
+  for (let s = 1; s >= 0.45; s -= 0.05) {
+    const r = attempt(s, false, true);
+    if (r) return r;
+  }
+  return attempt(0.45, false, false) ?? { cardW: baseW * 0.45, font: baseFont * 0.45, positions: [] };
+}
+
+/** Caixas (na tela) do que não pode ficar coberto: autor, arabescos, título, subtítulo e botão Pular. */
+function obstacleBoxes(root: HTMLElement): Box[] {
+  const out: Box[] = [];
+  root.querySelectorAll('.intro-author, .intro-flourish, .intro-title, .intro-sub, .intro-skip').forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width && r.height) out.push({ left: r.left, right: r.right, top: r.top, bottom: r.bottom });
   });
+  return out;
 }
 
 /** Poeirinha que sobe quando a foto toca a mesa. */
@@ -125,10 +216,16 @@ export function Intro({ reducedMotion, onDone }: Props) {
       const lets = gsap.utils.toArray<HTMLElement>('.intro-letter');
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const ring = ringPositions(cards.length, w, h);
+      const lay = layoutCards(cards.length, w, h, obstacleBoxes(root));
+      const ring = lay.positions;
       const tl = gsap.timeline({ onComplete: () => setAnimDone(true) });
       tlRef.current = tl;
-      gsap.set(cards, { xPercent: -50, yPercent: -50 }); // centraliza no ponto (0,0) do anel
+      // Tamanho das fotos (encolhem com mais de 4) e centralização no ponto (0,0)
+      cards.forEach((c) => {
+        c.style.setProperty('--card-w', `${lay.cardW}px`);
+        c.style.fontSize = `${lay.font}px`;
+      });
+      gsap.set(cards, { xPercent: -50, yPercent: -50 });
 
       if (reducedMotion) {
         // Movimento reduzido: só fade, sem queda
