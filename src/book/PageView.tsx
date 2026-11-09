@@ -1,8 +1,15 @@
-import { createElement, memo, type CSSProperties, type ReactNode, type SyntheticEvent } from 'react';
+import { createContext, createElement, memo, useContext, type CSSProperties, type ReactNode, type SyntheticEvent } from 'react';
 import { blockNode, type Node } from './blocks';
 import type { Page } from './paginate';
 import type { Fixed } from './structure';
 import { content, PLACEHOLDER_IMG } from '../lib/content';
+
+/**
+ * Medidas da página atual, fornecidas pelo Book: `budget` = altura útil da
+ * página em "em" (unidades da fonte do texto). Páginas fixas (créditos) usam
+ * isso para se ajustar sem rolagem.
+ */
+export const PageMetrics = createContext({ budget: 99 });
 
 /** Imagem que falhou vira o placeholder (sem quebrar o layout). */
 export function onImgError(e: SyntheticEvent<HTMLImageElement>) {
@@ -133,13 +140,20 @@ function MemberPage({ fixed }: { fixed: Extract<Fixed, { kind: 'member' }> }) {
 
 function Credits({ onCloseBook }: { onCloseBook: () => void }) {
   const { site, members } = content;
+  const { budget } = useContext(PageMetrics);
+  const cols2 = members.length >= 5;
+  const rows = cols2 ? Math.ceil(members.length / 2) : members.length;
+  // Altura que o conteúdo ocupa (em "em"): cabeçalho/rodapé fixos + ~2,6 por linha de nomes.
+  // Se a página tiver menos espaço que isso, a fonte diminui na proporção (mínimo 50 %).
+  const need = 21 + 2.6 * rows;
+  const scale = Math.max(0.5, Math.min(1, budget / need));
   return (
-    <div className="fx-credits">
+    <div className="fx-credits" style={{ '--cs': scale } as CSSProperties}>
       <p className="fx-small-caps">Fim</p>
       <h2>Créditos</h2>
       <Flourish />
       <p className="fx-credits-group">{site.groupName}</p>
-      <ul>
+      <ul className={cols2 ? 'cols2' : undefined}>
         {members.map((m) => (
           <li key={m.id}>
             <span>{m.name}</span>

@@ -18,7 +18,7 @@ import { PageFlip } from 'page-flip/dist/js/page-flip.module.js';
 import { content } from '../lib/content';
 import { buildSections, TOC_ID } from './structure';
 import { paginate, type Page } from './paginate';
-import { PageView } from './PageView';
+import { PageView, PageMetrics } from './PageView';
 import { playPageFlip } from '../lib/sound';
 import { save } from '../lib/storage';
 import { flipSignal } from '../lib/flipSignal';
@@ -111,6 +111,8 @@ export function Book({ visible, startAt, reducedMotion, onClose }: Props) {
 
   const spread = layout?.spread ?? false;
   const N = pages.length;
+  // Altura útil da página em "em": (altura − margens de 11 %) / fonte − rodapé (1,8 em)
+  const metrics = useMemo(() => ({ budget: layout ? (layout.pageH * 0.89) / layout.fs - 1.8 : 99 }), [layout]);
   const offset = spread ? 1 : 0; // guarda inicial no modo duplo
 
   /** Lista entregue ao StPageFlip: null = papel de guarda. */
@@ -411,6 +413,7 @@ export function Book({ visible, startAt, reducedMotion, onClose }: Props) {
 
           {/* Área controlada pelo StPageFlip; o conteúdo entra por portal */}
           <div className="pf-host" ref={hostRef} onClick={onBookClick}>
+            <PageMetrics.Provider value={metrics}>
             {items.map((el, i) => {
               const page = pfPages[i];
               const ourIdx = i - offset;
@@ -426,6 +429,7 @@ export function Book({ visible, startAt, reducedMotion, onClose }: Props) {
                 `p${i}`,
               );
             })}
+            </PageMetrics.Provider>
           </div>
 
           {/* Fita marcadora de cetim */}
