@@ -1,0 +1,7 @@
+# Configuração do Netlify: compila o projeto e publica a pasta dist/
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
