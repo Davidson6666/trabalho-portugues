@@ -1,0 +1,34 @@
+{
+  "about_book": {
+    "title": "Sobre o livro",
+    "todo": "TODO revisar",
+    "paragraphs": [
+      "Quincas Borba é um romance de Machado de Assis publicado em 1891. A história acompanha Rubião, um professor de Barbacena que herda uma grande fortuna do amigo Quincas Borba, filósofo excêntrico que criou o Humanitismo, e se muda para o Rio de Janeiro, onde é cercado de interesses e falsas amizades.",
+      "O livro é considerado uma continuação espiritual de Memórias Póstumas de Brás Cubas.",
+      "[TODO revisar: acrescentar um parágrafo sobre a importância da obra para o tema do trabalho.]"
+    ]
+  },
+  "about_author": {
+    "title": "Sobre o autor",
+    "todo": "TODO revisar",
+    "paragraphs": [
+      "Joaquim Maria Machado de Assis nasceu no Rio de Janeiro em 1839 e morreu na mesma cidade em 1908. Filho de um pintor de paredes e de uma lavadeira, tornou-se um dos maiores nomes da literatura brasileira, com obras como Memórias Póstumas de Brás Cubas, Quincas Borba e Dom Casmurro.",
+      "Foi o fundador e primeiro presidente da Academia Brasileira de Letras.",
+      "[TODO revisar: acrescentar um parágrafo sobre o estilo do autor.]"
+    ]
+  },
+  "author_photos": [
+    {
+      "src": "/images/machado/machado-1890-marc-ferrez.jpg",
+      "caption": "Em 1890, por Marc Ferrez. Wikimedia Commons, domínio público."
+    },
+    {
+      "src": "/images/machado/machado-1896-57-anos.jpg",
+      "caption": "Aos 57 anos, c. 1896. Wikimedia Commons, domínio público."
+    },
+    {
+      "src": "/images/machado/machado-1904.jpg",
+      "caption": "Em 1904. Wikimedia Commons, domínio público."
+    }
+  ]
+}

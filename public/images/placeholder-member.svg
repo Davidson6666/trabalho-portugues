@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" role="img" aria-label="Foto a definir">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9dcc2"/>
+      <stop offset="1" stop-color="#d4c09b"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#bg)"/>
+  <circle cx="150" cy="150" r="62" fill="#b9a27a"/>
+  <path d="M40 400c0-85 50-140 110-140s110 55 110 140z" fill="#b9a27a"/>
+  <text x="150" y="380" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#6b5634">foto a definir</text>
+</svg>

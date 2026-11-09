@@ -1,0 +1,30 @@
+[
+  {
+    "id": "membro-1",
+    "name": "Integrante 1 (TODO)",
+    "role": "Função no grupo (TODO)",
+    "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
+    "photo": "/images/placeholder-member.svg"
+  },
+  {
+    "id": "membro-2",
+    "name": "Integrante 2 (TODO)",
+    "role": "Função no grupo (TODO)",
+    "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
+    "photo": "/images/placeholder-member.svg"
+  },
+  {
+    "id": "membro-3",
+    "name": "Integrante 3 (TODO)",
+    "role": "Função no grupo (TODO)",
+    "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
+    "photo": "/images/placeholder-member.svg"
+  },
+  {
+    "id": "membro-4",
+    "name": "Integrante 4 (TODO)",
+    "role": "Função no grupo (TODO)",
+    "bio": "TODO: escreva aqui uma bio curta, com duas ou três frases sobre o integrante.",
+    "photo": "/images/placeholder-member.svg"
+  }
+]
